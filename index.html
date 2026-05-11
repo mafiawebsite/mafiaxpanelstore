@@ -84,6 +84,7 @@ background:rgba(0,0,0,.8);
 justify-content:center;
 align-items:center;
 padding:15px;
+z-index:9999;
 }
 
 .paycard{
@@ -95,7 +96,8 @@ max-width:400px;
 text-align:center;
 }
 
-select{
+select,
+input{
 width:100%;
 padding:12px;
 margin-top:15px;
@@ -116,10 +118,117 @@ a{
 text-decoration:none;
 }
 
+#menuBtn{
+position:fixed;
+top:15px;
+left:15px;
+font-size:28px;
+z-index:99999;
+cursor:pointer;
+}
+
+#sideMenu{
+position:fixed;
+top:0;
+left:-260px;
+width:250px;
+height:100%;
+background:#111827;
+z-index:99999;
+padding:20px;
+transition:.4s;
+}
+
 </style>
 </head>
 
 <body>
+
+<!-- LOGIN PAGE -->
+
+<div id="authPage" style="
+position:fixed;
+top:0;
+left:0;
+width:100%;
+height:100%;
+background:#0b1120;
+z-index:999999;
+display:flex;
+justify-content:center;
+align-items:center;
+padding:20px;
+">
+
+<div style="
+background:#111827;
+padding:25px;
+border-radius:20px;
+width:100%;
+max-width:400px;
+">
+
+<h2 style="text-align:center;">
+MAFIA LOGIN
+</h2>
+
+<input type="text" id="loginUser" placeholder="Enter Username">
+
+<input type="password" id="loginPass" placeholder="Enter Password">
+
+<button onclick="loginUserFunc()">
+LOGIN
+</button>
+
+<button onclick="showRegister()">
+REGISTER
+</button>
+
+<div id="registerBox" style="display:none;">
+
+<input type="text" id="regUser" placeholder="Create Username">
+
+<input type="password" id="regPass" placeholder="Create Password">
+
+<button onclick="registerUserFunc()">
+CREATE ACCOUNT
+</button>
+
+</div>
+
+</div>
+
+</div>
+
+<!-- MENU -->
+
+<div id="menuBtn">
+☰
+</div>
+
+<div id="sideMenu">
+
+<h2>
+MAFIA MENU
+</h2>
+
+<button onclick="openBalance()">
+ADD BALANCE
+</button>
+
+<button onclick="openKeys()">
+MY KEYS
+</button>
+
+<button onclick="openHistory()">
+HISTORY
+</button>
+
+<button onclick="closeMenu()">
+CLOSE
+</button>
+
+</div>
 
 <header>
 MAFIA PANEL STORE
@@ -267,6 +376,8 @@ WHATSAPP DM
 </div>
 
 
+<!-- BUY PANEL -->
+
 <div class="paybox" id="paymentBox">
 
 <div class="paycard">
@@ -336,13 +447,278 @@ CLOSE
 </div>
 
 
+<!-- ADD BALANCE -->
+
+<div class="paybox" id="balancePage">
+
+<div class="paycard">
+
+<h2>
+ADD BALANCE
+</h2>
+
+<p style="margin-top:15px;">
+UPI ID :
+<br>
+7339488009@fam
+</p>
+
+<input type="number" id="balAmount" placeholder="Enter Your Amount">
+
+<input type="number" id="balNumber" placeholder="Enter Your Number">
+
+<button onclick="generateBalanceQR()">
+GENERATE QR
+</button>
+
+<div id="balanceQR" style="display:none;">
+
+<img id="balanceQRImg" class="qrimg">
+
+<br><br>
+
+<a id="balancePayBtn">
+<button>
+OPEN GPAY
+</button>
+</a>
+
+</div>
+
+<br>
+
+<button onclick="closeBalance()">
+CLOSE
+</button>
+
+</div>
+
+</div>
+
+
+<!-- MY KEYS -->
+
+<div class="paybox" id="keysPage">
+
+<div class="paycard">
+
+<h2>
+MY KEYS
+</h2>
+
+<div id="keysList" style="
+margin-top:20px;
+text-align:left;
+line-height:2;
+max-height:300px;
+overflow:auto;
+">
+NO KEYS FOUND
+</div>
+
+<br>
+
+<button onclick="closeKeys()">
+CLOSE
+</button>
+
+</div>
+
+</div>
+
+
+<!-- HISTORY -->
+
+<div class="paybox" id="historyPage">
+
+<div class="paycard">
+
+<h2>
+PURCHASE HISTORY
+</h2>
+
+<div id="historyList" style="
+margin-top:20px;
+text-align:left;
+line-height:2;
+max-height:300px;
+overflow:auto;
+">
+NO HISTORY FOUND
+</div>
+
+<br>
+
+<button onclick="closeHistory()">
+CLOSE
+</button>
+
+</div>
+
+</div>
+
+
 <script>
+
+let currentUser = "";
+
+function showRegister(){
+
+document.getElementById("registerBox").style.display="block";
+
+}
+
+function registerUserFunc(){
+
+let u=document.getElementById("regUser").value;
+let p=document.getElementById("regPass").value;
+
+if(u=="" || p==""){
+
+alert("Fill All Fields");
+return;
+
+}
+
+localStorage.setItem("user_"+u,p);
+
+alert("Register Success ✅");
+
+}
+
+function loginUserFunc(){
+
+let u=document.getElementById("loginUser").value;
+let p=document.getElementById("loginPass").value;
+
+let saved=localStorage.getItem("user_"+u);
+
+if(saved==p){
+
+currentUser=u;
+
+localStorage.setItem("loggedUser",u);
+
+document.getElementById("authPage").style.display="none";
+
+}else{
+
+alert("Wrong Username Or Password");
+
+}
+
+}
+
+window.onload=function(){
+
+let logged=localStorage.getItem("loggedUser");
+
+if(logged){
+
+currentUser=logged;
+
+document.getElementById("authPage").style.display="none";
+
+}
+
+}
+
+document.getElementById("menuBtn").onclick=function(){
+
+document.getElementById("sideMenu").style.left="0";
+
+}
+
+function closeMenu(){
+
+document.getElementById("sideMenu").style.left="-260px";
+
+}
+
+function openBalance(){
+
+document.getElementById("balancePage").style.display="flex";
+
+}
+
+function closeBalance(){
+
+document.getElementById("balancePage").style.display="none";
+
+}
+
+function generateBalanceQR(){
+
+let amount=document.getElementById("balAmount").value;
+
+let number=document.getElementById("balNumber").value;
+
+if(amount=="" || number==""){
+
+alert("Fill All Details");
+return;
+
+}
+
+let upi=
+"upi://pay?pa=7339488009@fam&am="
++ amount +
+"&cu=INR";
+
+let qr=
+"https://api.qrserver.com/v1/create-qr-code/?size=250x250&data="
++ encodeURIComponent(upi);
+
+document.getElementById("balanceQRImg").src=qr;
+
+document.getElementById("balancePayBtn").href=upi;
+
+document.getElementById("balanceQR").style.display="block";
+
+}
+
+function openKeys(){
+
+document.getElementById("keysPage").style.display="flex";
+
+loadKeys();
+
+}
+
+function closeKeys(){
+
+document.getElementById("keysPage").style.display="none";
+
+}
+
+function openHistory(){
+
+document.getElementById("historyPage").style.display="flex";
+
+loadHistory();
+
+}
+
+function closeHistory(){
+
+document.getElementById("historyPage").style.display="none";
+
+}
+
+function generateRandomKey(){
+
+return 'MAFIA-' +
+Math.random().toString(36).substring(2,8).toUpperCase();
+
+}
 
 function buy(panel){
 
 document.getElementById("paymentBox").style.display="flex";
 
 document.getElementById("panelName").innerHTML=panel;
+
+localStorage.setItem("selectedPanel",panel);
 
 }
 
@@ -372,6 +748,35 @@ document.getElementById("gpayBtn").href=upi;
 
 document.getElementById("qrArea").style.display="block";
 
+let key=generateRandomKey();
+
+let panel=localStorage.getItem("selectedPanel");
+
+let keyData=
+panel + " = " + key;
+
+let historyData=
+"Purchased : " + panel +
+"<br>Amount : ₹" + amount +
+"<br>Key : " + key +
+"<hr>";
+
+let oldKeys=
+localStorage.getItem("keys_"+currentUser) || "";
+
+localStorage.setItem(
+"keys_"+currentUser,
+oldKeys + "<br>" + keyData
+);
+
+let oldHistory=
+localStorage.getItem("history_"+currentUser) || "";
+
+localStorage.setItem(
+"history_"+currentUser,
+oldHistory + historyData
+);
+
 window.location.href = upi;
 
 window.onfocus = function(){
@@ -387,7 +792,27 @@ window.onfocus=null;
 
 }
 
+function loadKeys(){
+
+let data=
+localStorage.getItem("keys_"+currentUser);
+
+document.getElementById("keysList").innerHTML=
+data || "NO KEYS FOUND";
+
+}
+
+function loadHistory(){
+
+let data=
+localStorage.getItem("history_"+currentUser);
+
+document.getElementById("historyList").innerHTML=
+data || "NO HISTORY FOUND";
+
+}
+
 </script>
 
 </body>
-  </html>
+</html>
